@@ -1,0 +1,6 @@
+{
+  "name": "Wevioo TicketDesk",
+  "description": "A digital welcome desk app for picking up restaurant vouchers, signing confirmations, and sending automatic email notifications at Wevioo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
