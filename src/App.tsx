@@ -6,13 +6,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, MapPin, Database, Award, Mail, Sparkles, HelpCircle, 
-  Layers, CheckCircle2, ChevronRight, UserCheck, ShieldCheck, MailX, Send
+  Layers, CheckCircle2, ChevronRight, UserCheck, ShieldCheck, MailX, Send, Users
 } from 'lucide-react';
 import { Employee, EmailNotification } from './types';
 import { INITIAL_EMPLOYEES } from './data/mockEmployees';
 import KioskMode from './components/KioskMode';
 import DirectoryView from './components/DirectoryView';
 import EmailSimulator from './components/EmailSimulator';
+import EligibleManager from './components/EligibleManager';
+import WeviooLogo from './components/WeviooLogo';
 
 export default function App() {
   const [employees, setEmployees] = useState<Employee[]>(() => {
@@ -25,7 +27,7 @@ export default function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [activeTab, setActiveTab] = useState<'KIOSK' | 'DIRECTORY' | 'SMTP'>('KIOSK');
+  const [activeTab, setActiveTab ] = useState<'KIOSK' | 'DIRECTORY' | 'SMTP' | 'ELIGIBLES'>('KIOSK');
 
   // Sync to local storage for persistent testing
   useEffect(() => {
@@ -54,10 +56,14 @@ export default function App() {
 
   // Reset all statuses
   const handleResetAll = () => {
-    if (window.confirm('Voulez-vous vraiment réinitialiser l\'état de tous les tickets repas ? (POC Reset)')) {
-      setEmployees(INITIAL_EMPLOYEES.map(emp => ({ ...emp, ticketStatus: 'PENDING' })));
-      setEmails([]);
-    }
+    setEmployees(prev => prev.map(emp => ({ 
+      ...emp, 
+      ticketStatus: 'PENDING',
+      collectedAt: undefined,
+      collectedBy: undefined,
+      signatureUrl: undefined
+    })));
+    setEmails([]);
   };
 
   const handleClearEmails = () => {
@@ -189,8 +195,53 @@ export default function App() {
           : `Bonjour ${target.name}, Votre carnet de tickets restaurant a été retiré hier/aujourd'hui par votre collègue ${picker.name}.`,
         htmlBody: htmlBody,
         timestamp: currentUTC,
-        status: 'DELIVERED',
+        status: 'SENT',
         type: isSelf ? 'SELF_PICKUP' : 'FRIEND_PICKUP'
+      });
+
+      // Fire HTTP request to server-side SMTP dispatcher
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: target.email,
+          subject: subject,
+          htmlBody: htmlBody,
+          textBody: isSelf 
+            ? `Bonjour ${target.name}, Nous vous confirmons que vous avez bien retiré vos tickets restaurant pour ce mois à l'accueil.`
+            : `Bonjour ${target.name}, Votre carnet de tickets restaurant a été retiré par votre collègue ${picker.name}.`
+        })
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(errData => { throw new Error(errData.error || errData.message || 'SMTP Error'); });
+        }
+        return res.json();
+      })
+      .then(data => {
+        setEmails(prev => prev.map(em => {
+          if (em.id === emailId) {
+            return {
+              ...em,
+              status: data.status === 'sent' ? 'DELIVERED' : 'SIMULATED',
+              smtpInfo: data.messageId ? `SMTP MsgID: ${data.messageId}` : undefined
+            };
+          }
+          return em;
+        }));
+      })
+      .catch(smtpErr => {
+        console.error('[TunisDesk SMTP Error]:', smtpErr);
+        setEmails(prev => prev.map(em => {
+          if (em.id === emailId) {
+            return {
+              ...em,
+              status: 'FAILED',
+              smtpError: smtpErr.message || 'SMTP Relay delivery failed'
+            };
+          }
+          return em;
+        }));
       });
     });
 
@@ -198,58 +249,66 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans flex flex-col text-slate-800 antialiased selection:bg-[#FF6B35]/20 selection:text-[#FF6B35]">
+    <div className="min-h-screen bg-[#F8FAFC] font-sans flex flex-col text-slate-800 antialiased selection:bg-wevioo-cyan/20 selection:text-wevioo-blue">
       
       {/* Dynamic Wevioo Corporate Nav Header */}
-      <header className="bg-[#0B132B] text-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          {/* Brand Logo Layout */}
-          <div className="flex items-center space-x-3.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1A3B8B] to-[#00A4E4] flex items-center justify-center font-black text-white text-base shadow border border-slate-800">
-              W
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-xl font-extrabold tracking-tight">
-                  we<span className="text-[#FF6B35]">vioo</span>
-                </span>
-                <span className="bg-[#FF6B35]/25 border border-[#FF6B35]/35 text-[#FF6B35] font-semibold text-[10px] uppercase px-1.5 py-0.5 rounded tracking-wide font-sans">
-                  Tunis
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">
-                The Digital Enablement Partner
-              </p>
-            </div>
-          </div>
+      <header className="bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          
+          {/* Authentic Brand Logo Custom Component */}
+          <WeviooLogo dark={false} />
 
           {/* Navigation Controls */}
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-2">
             <button
               id="nav-kiosk"
               onClick={() => setActiveTab('KIOSK')}
-              className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === 'KIOSK' ? 'bg-[#1A3B8B] text-white shadow font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
+              className={`text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+                activeTab === 'KIOSK' 
+                  ? 'bg-wevioo-blue text-white shadow-md shadow-wevioo-blue/10' 
+                  : 'text-slate-650 hover:text-wevioo-blue hover:bg-slate-50 border border-transparent'
+              }`}
             >
-              <Building2 className="w-3.5 h-3.5" />
+              <Building2 className={`w-3.5 h-3.5 ${activeTab === 'KIOSK' ? 'text-wevioo-cyan' : 'text-slate-400'}`} />
               Guichet d'Accueil
             </button>
             <button
               id="nav-directory"
               onClick={() => setActiveTab('DIRECTORY')}
-              className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 ${activeTab === 'DIRECTORY' ? 'bg-[#1A3B8B] text-white shadow font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
+              className={`text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+                activeTab === 'DIRECTORY' 
+                  ? 'bg-wevioo-blue text-white shadow-md shadow-wevioo-blue/10' 
+                  : 'text-slate-650 hover:text-wevioo-blue hover:bg-slate-50 border border-transparent'
+              }`}
             >
-              <Database className="w-3.5 h-3.5" />
+              <Database className={`w-3.5 h-3.5 ${activeTab === 'DIRECTORY' ? 'text-wevioo-cyan' : 'text-slate-400'}`} />
               Annuaire AD (Mock)
+            </button>
+            <button
+              id="nav-eligibles"
+              onClick={() => setActiveTab('ELIGIBLES')}
+              className={`text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+                activeTab === 'ELIGIBLES' 
+                  ? 'bg-wevioo-blue text-white shadow-md shadow-wevioo-blue/10' 
+                  : 'text-slate-650 hover:text-wevioo-blue hover:bg-slate-50 border border-transparent'
+              }`}
+            >
+              <Users className={`w-3.5 h-3.5 ${activeTab === 'ELIGIBLES' ? 'text-wevioo-cyan' : 'text-slate-400'}`} />
+              Éligibles & Import
             </button>
             <button
               id="nav-smtp"
               onClick={() => setActiveTab('SMTP')}
-              className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 relative ${activeTab === 'SMTP' ? 'bg-[#1A3B8B] text-white shadow font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'}`}
+              className={`text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-2 relative ${
+                activeTab === 'SMTP' 
+                  ? 'bg-wevioo-blue text-white shadow-md shadow-wevioo-blue/10' 
+                  : 'text-slate-650 hover:text-wevioo-blue hover:bg-slate-50 border border-transparent'
+              }`}
             >
-              <Mail className="w-3.5 h-3.5" />
+              <Mail className={`w-3.5 h-3.5 ${activeTab === 'SMTP' ? 'text-wevioo-cyan' : 'text-slate-400'}`} />
               SMTP Logs Simulator
               {emails.length > 0 && (
-                <span className="absolute -top-1 -right-1.5 w-4 h-4 bg-[#FF6B35] text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 bg-wevioo-cyan text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 animate-pulse">
                   {emails.length}
                 </span>
               )}
@@ -283,7 +342,7 @@ export default function App() {
             <div className="space-y-4">
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                 <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                  <Send className="w-5 h-5 text-[#1A3B8B]" />
+                  <Send className="w-5 h-5 text-wevioo-blue" />
                   Aperçu Global de la Messagerie Interne
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
@@ -294,6 +353,13 @@ export default function App() {
             </div>
           )}
 
+          {activeTab === 'ELIGIBLES' && (
+            <EligibleManager 
+              employees={employees} 
+              setEmployees={setEmployees} 
+            />
+          )}
+
         </div>
 
         {/* Corporate Info Sidebar Right */}
@@ -302,40 +368,36 @@ export default function App() {
           {/* Wevioo Tunis HQ Card */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-100/80 space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-[#FF6B35]">
+              <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-wevioo-cyan">
                 <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-[#1A3B8B] text-sm leading-none">Wevioo Tunisie HQ</h3>
+                <h3 className="font-bold text-wevioo-blue text-sm leading-none">Wevioo Tunisie HQ</h3>
                 <span className="text-[10px] text-slate-400 font-mono">Tunis Office Cluster</span>
               </div>
             </div>
 
             <div className="text-xs text-slate-600 space-y-2.5 pt-2 border-t border-slate-100">
-              <p className="flex justify-between">
+              <div className="flex flex-col gap-1">
                 <span className="text-slate-400">Adresse :</span>
-                <span className="font-semibold text-slate-700 text-right">Centre Urbain Nord, Tunis</span>
-              </p>
+                <span className="font-semibold text-slate-700 text-left">Immeuble WEVIOO Technopark El Ghazela 2088 Tunis-، Ariana- Tunisie 2088</span>
+              </div>
               <p className="flex justify-between">
                 <span className="text-slate-400">Service :</span>
-                <span className="font-semibold text-slate-700 text-right">Ressources Humaines & Logistique</span>
-              </p>
-              <p className="flex justify-between">
-                <span className="text-slate-400">Devise :</span>
-                <span className="font-semibold text-slate-700 text-right">TND (Dinar Tunisien)</span>
+                <span className="font-semibold text-slate-700 text-right font-mono text-[11px] bg-slate-100 px-1.5 py-0.5 rounded">ADP</span>
               </p>
             </div>
 
             <div className="bg-slate-50 p-3.5 rounded-xl text-center">
               <p className="text-[11px] text-slate-500 font-medium">Bons de Restauration SODEXO</p>
-              <p className="text-xs font-black text-[#1A3B8B] mt-0.5">22 Bons par Carnet / Collaborateur</p>
+              <p className="text-xs font-black text-wevioo-blue mt-0.5">22 Bons par Carnet / Collaborateur</p>
             </div>
           </div>
 
           {/* Quick Stats Widget */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-100/80 space-y-4">
             <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-[#FF6B35]" />
+              <Award className="w-4 h-4 text-wevioo-cyan" />
               Activité TunisDesk
             </h4>
 
@@ -354,7 +416,7 @@ export default function App() {
 
               <div className="flex justify-between items-center text-xs">
                 <span className="text-slate-500">Simulateur SMTP Queue :</span>
-                <span className="font-black text-[#FF6B35]">
+                <span className="font-black text-wevioo-cyan">
                   {emails.length} messages envoyés
                 </span>
               </div>
@@ -364,7 +426,7 @@ export default function App() {
             {activeTab !== 'SMTP' && (
               <button
                 onClick={() => setActiveTab('SMTP')}
-                className="w-full py-2.5 px-4 bg-slate-50 hover:bg-[#FF6B35]/5 border border-slate-200 hover:border-[#FF6B35]/30 text-slate-700 hover:text-slate-900 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-4 bg-slate-50 hover:bg-wevioo-cyan/5 border border-slate-200 hover:border-wevioo-cyan/30 text-slate-705 hover:text-slate-900 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-1.5"
               >
                 <span>Ouvrir l'Inbox de Simulation</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -394,19 +456,17 @@ export default function App() {
 
       {/* Footer corporate signature */}
       <footer className="bg-slate-900 text-slate-500 border-t border-slate-800/80 mt-12 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-6">
           <div>
-            <span className="text-sm font-bold tracking-tight text-white font-sans">
-              we<span className="text-[#FF6B35]">vioo</span>
-            </span>
-            <p className="text-[11px] text-slate-500 mt-1 font-sans">
+            <WeviooLogo dark={true} />
+            <p className="text-[11px] text-slate-500 mt-2 font-sans pl-1">
               © {new Date().getFullYear()} Wevioo Group. Tunis Office. Tous droits réservés.
             </p>
           </div>
           <div className="flex items-center gap-4 text-xs font-medium text-slate-400">
-            <span className="hover:text-white transition-colors">Politique de Sécurité</span>
+            <span className="hover:text-white transition-colors cursor-pointer">Politique de Sécurité</span>
             <span>•</span>
-            <span className="hover:text-white transition-colors">Support IT Wevioo 1082</span>
+            <span className="hover:text-white transition-colors cursor-pointer">Support IT Wevioo 1082</span>
           </div>
         </div>
       </footer>

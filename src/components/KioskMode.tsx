@@ -91,17 +91,17 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
       {step === 0 && (
         <div className="flex flex-col items-center justify-center text-center py-8 space-y-6">
           <div className="relative">
-            <div className="absolute inset-0 bg-[#FF6B35]/20 blur-2xl rounded-full scale-125" />
-            <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-tr from-[#1A3B8B] to-[#00A4E4] flex items-center justify-center text-white text-3xl font-black shadow-lg">
+            <div className="absolute inset-0 bg-wevioo-cyan/25 blur-2xl rounded-full scale-125" />
+            <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-tr from-wevioo-blue to-wevioo-cyan flex items-center justify-center text-white text-3xl font-black shadow-lg">
               W
             </div>
           </div>
 
           <div className="space-y-2 max-w-lg">
-            <span className="text-xs bg-slate-100 hover:bg-slate-200 text-[#1A3B8B] font-semibold tracking-wider uppercase px-3 py-1.5 rounded-full border border-slate-200">
+            <span className="text-xs bg-slate-100 hover:bg-slate-200 text-wevioo-blue font-semibold tracking-wider uppercase px-3 py-1.5 rounded-full border border-slate-200">
               Kiosque d'Accueil — Wevioo Tunisie 🇹🇳
             </span>
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-[#1A3B8B] font-sans">
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight text-wevioo-blue font-sans">
               Retrait des Tickets Restaurant
             </h1>
             <p className="text-slate-500 text-sm leading-relaxed">
@@ -110,7 +110,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
           </div>
 
           <div className="w-full max-w-md bg-slate-50 border border-slate-100 rounded-xl p-4 flex gap-3 text-left">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-[#FF6B35] shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center text-wevioo-cyan shrink-0">
               <Coffee className="w-5 h-5" />
             </div>
             <div>
@@ -122,7 +122,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
           <button
             onClick={() => setStep(1)}
             type="button"
-            className="w-full max-w-sm py-4 bg-[#1A3B8B] hover:bg-[#1A3B8B]/95 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            className="w-full max-w-sm py-4 bg-wevioo-blue hover:bg-wevioo-blue/95 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
           >
             <span>Démarrer le retrait</span>
             <ArrowRight className="w-5 h-5" />
@@ -137,11 +137,11 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <div className="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 py-1.5 px-3 rounded-lg border border-slate-100 w-fit">
               <span>Étape 1 sur 4</span>
               <span>•</span>
-              <span className="text-[#FF6B35]">Identification</span>
+              <span className="text-wevioo-cyan">Identification</span>
             </div>
             
             <div className="space-y-1">
-              <h2 className="text-xl font-bold text-[#1A3B8B]">Qui êtes-vous ?</h2>
+              <h2 className="text-xl font-bold text-wevioo-blue">Qui êtes-vous ?</h2>
               <p className="text-xs text-slate-500">
                 Recherchez votre compte Active Directory et sélectionnez votre nom dans la liste des collaborateurs Wevioo.
               </p>
@@ -155,7 +155,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                 placeholder="Rechercher par nom ou email wevioo..."
                 value={searchPicker}
                 onChange={(e) => setSearchPicker(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1A3B8B] text-sm focus:ring-2 focus:ring-[#1A3B8B]/10"
+                className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-wevioo-blue text-sm focus:ring-2 focus:ring-wevioo-blue/10"
               />
             </div>
 
@@ -168,14 +168,22 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
               ) : (
                 availablePickers.map((emp) => {
                   const isSelected = selectedSelf?.id === emp.id;
+                  const isCollected = emp.ticketStatus === 'COLLECTED';
                    return (
                     <button
                       key={emp.id}
-                      onClick={() => setSelectedSelf(emp)}
-                      className={`w-full text-left p-3.5 flex items-center justify-between transition-all ${isSelected ? 'bg-[#1A3B8B]/5 text-[#1A3B8B]' : 'hover:bg-slate-50/70'}`}
+                      disabled={isCollected}
+                      onClick={() => !isCollected && setSelectedSelf(emp)}
+                      className={`w-full text-left p-3.5 flex items-center justify-between transition-all ${
+                        isCollected 
+                          ? 'opacity-40 cursor-not-allowed bg-slate-50/60' 
+                          : isSelected 
+                            ? 'bg-wevioo-blue/5 text-wevioo-blue' 
+                            : 'hover:bg-slate-50/70'
+                      }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${isSelected ? 'bg-[#1A3B8B]' : 'bg-[#00A4E4]'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${isSelected ? 'bg-wevioo-blue' : 'bg-wevioo-cyan'}`}>
                           {emp.avatar}
                         </div>
                         <div>
@@ -189,7 +197,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                         {emp.ticketStatus === 'COLLECTED' && (
                           <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-mono font-medium">Déjà retiré</span>
                         )}
-                        {isSelected && <CheckCircle className="w-5 h-5 text-[#1A3B8B]" />}
+                        {isSelected && <CheckCircle className="w-5 h-5 text-wevioo-blue" />}
                       </div>
                     </button>
                   );
@@ -210,7 +218,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <button
               disabled={!selectedSelf}
               onClick={() => setStep(2)}
-              className="px-6 py-3 rounded-xl bg-[#1A3B8B] hover:bg-[#1A3B8B]/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all text-sm flex items-center gap-1.5"
+              className="px-6 py-3 rounded-xl bg-wevioo-blue hover:bg-wevioo-blue/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all text-sm flex items-center gap-1.5"
             >
               Suivant
               <ArrowRight className="w-4 h-4" />
@@ -226,11 +234,11 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <div className="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 py-1.5 px-3 rounded-lg border border-slate-100 w-fit">
               <span>Étape 2 sur 4</span>
               <span>•</span>
-              <span className="text-[#1A3B8B]">Option de Retrait</span>
+              <span className="text-wevioo-blue">Option de Retrait</span>
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-xl font-bold text-[#1A3B8B]">Choisissez votre option de retrait</h2>
+              <h2 className="text-xl font-bold text-wevioo-blue">Choisissez votre option de retrait</h2>
               <p className="text-xs text-slate-500">
                 Sachez que vous pouvez également récupérer les bons de restauration pour d'autres collègues directement.
               </p>
@@ -240,9 +248,9 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
               {/* Option 1 */}
               <button
                 onClick={() => { setPickupMode('SELF'); setSelectedFriend(null); }}
-                className={`p-5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between space-y-4 ${pickupMode === 'SELF' ? 'border-[#1A3B8B] bg-[#1A3B8B]/5 ring-2 ring-[#1A3B8B]/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/50'}`}
+                className={`p-5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between space-y-4 ${pickupMode === 'SELF' ? 'border-wevioo-blue bg-wevioo-blue/5 ring-2 ring-wevioo-blue/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/50'}`}
               >
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-[#1A3B8B]">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-wevioo-blue">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
@@ -254,9 +262,9 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
               {/* Option 2 */}
               <button
                 onClick={() => setPickupMode('FRIEND')}
-                className={`p-5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between space-y-4 ${pickupMode === 'FRIEND' ? 'border-[#FF6B35] bg-[#FF6B35]/5 ring-2 ring-[#FF6B35]/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/50'}`}
+                className={`p-5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between space-y-4 ${pickupMode === 'FRIEND' ? 'border-wevioo-cyan bg-wevioo-cyan/5 ring-2 ring-wevioo-cyan/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/50'}`}
               >
-                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-[#FF6B35]">
+                <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-wevioo-cyan">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
@@ -268,9 +276,9 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
               {/* Option 3 */}
               <button
                 onClick={() => setPickupMode('BOTH')}
-                className={`p-5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between space-y-4 ${pickupMode === 'BOTH' ? 'border-[#00A4E4] bg-[#00A4E4]/5 ring-2 ring-[#00A4E4]/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/50'}`}
+                className={`p-5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between space-y-4 ${pickupMode === 'BOTH' ? 'border-wevioo-cyan bg-wevioo-cyan/5 ring-2 ring-wevioo-cyan/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/50'}`}
               >
-                <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-[#00A4E4]">
+                <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-wevioo-cyan">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
@@ -305,7 +313,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                   setStep(3); // Go to friend list selection
                 }
               }}
-              className="px-6 py-3 rounded-xl bg-[#1A3B8B] hover:bg-[#1A3B8B]/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all text-sm flex items-center gap-1.5"
+              className="px-6 py-3 rounded-xl bg-wevioo-blue hover:bg-wevioo-blue/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all text-sm flex items-center gap-1.5"
             >
               Suivant
               <ArrowRight className="w-4 h-4" />
@@ -321,11 +329,11 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <div className="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 py-1.5 px-3 rounded-lg border border-slate-100 w-fit">
               <span>Étape 3 sur 4</span>
               <span>•</span>
-              <span className="text-[#FF6B35]">Sélection du Collègue</span>
+              <span className="text-wevioo-cyan">Sélection du Collègue</span>
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-xl font-bold text-[#1A3B8B]">Quel ami ou collègue Wevioo ?</h2>
+              <h2 className="text-xl font-bold text-wevioo-blue">Quel ami ou collègue Wevioo ?</h2>
               <p className="text-xs text-slate-500">
                 Sélectionnez le collaborateur dont vous allez récupérer le bon de restaurant.
               </p>
@@ -339,7 +347,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                 placeholder="Rechercher le collègue par son nom ou email..."
                 value={searchFriend}
                 onChange={(e) => setSearchFriend(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1A3B8B] text-sm focus:ring-2 focus:ring-[#1A3B8B]/10"
+                className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:border-wevioo-blue text-sm focus:ring-2 focus:ring-wevioo-blue/10"
               />
             </div>
 
@@ -352,11 +360,19 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
               ) : (
                 availableFriends.map((emp) => {
                   const isSelected = selectedFriend?.id === emp.id;
+                  const isCollected = emp.ticketStatus === 'COLLECTED';
                   return (
                     <button
                       key={emp.id}
-                      onClick={() => setSelectedFriend(emp)}
-                      className={`w-full text-left p-3.5 flex items-center justify-between transition-all ${isSelected ? 'bg-orange-500/5 text-[#FF6B35]' : 'hover:bg-slate-50/70'}`}
+                      disabled={isCollected}
+                      onClick={() => !isCollected && setSelectedFriend(emp)}
+                      className={`w-full text-left p-3.5 flex items-center justify-between transition-all ${
+                        isCollected 
+                          ? 'opacity-40 cursor-not-allowed bg-slate-50/60' 
+                          : isSelected 
+                            ? 'bg-wevioo-cyan/5 text-wevioo-cyan' 
+                            : 'hover:bg-slate-50/70'
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white bg-slate-400`}>
@@ -373,7 +389,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                         {emp.ticketStatus === 'COLLECTED' && (
                           <span className="text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded font-mono">Retiré</span>
                         )}
-                        {isSelected && <CheckCircle className="w-5 h-5 text-[#FF6B35]" />}
+                        {isSelected && <CheckCircle className="w-5 h-5 text-wevioo-cyan" />}
                       </div>
                     </button>
                   );
@@ -394,7 +410,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <button
               disabled={!selectedFriend}
               onClick={() => setStep(4)}
-              className="px-6 py-3 rounded-xl bg-[#1A3B8B] hover:bg-[#1A3B8B]/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all text-sm flex items-center gap-1.5"
+              className="px-6 py-3 rounded-xl bg-wevioo-blue hover:bg-wevioo-blue/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all text-sm flex items-center gap-1.5"
             >
               Suivant
               <ArrowRight className="w-4 h-4" />
@@ -410,11 +426,11 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <div className="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50 py-1.5 px-3 rounded-lg border border-slate-100 w-fit">
               <span>Étape 4 sur 4</span>
               <span>•</span>
-              <span className="text-indigo-600">Confirmation & Signature</span>
+              <span className="text-wevioo-blue font-bold">Confirmation & Signature</span>
             </div>
 
             <div className="space-y-1">
-              <h2 className="text-xl font-bold text-[#1A3B8B]">Réception sécurisée & Émargement</h2>
+              <h2 className="text-xl font-bold text-wevioo-blue">Réception sécurisée & Émargement</h2>
               <p className="text-xs text-slate-500">
                 Veuillez émarger ci-dessous. En validant, un rapport de livraison numérique sera généré.
               </p>
@@ -438,15 +454,25 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                   
                   <div className="space-y-1.5">
                     {(pickupMode === 'SELF' || pickupMode === 'BOTH') && selectedSelf && (
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-100 px-2 py-1 rounded">
-                        <span className="w-2 h-2 rounded-full bg-[#1A3B8B]"></span>
-                        <span>{selectedSelf.name} <span className="text-[10px] text-slate-400 font-normal">(Moi-même)</span></span>
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-700 bg-white border border-slate-100 px-2.5 py-1.5 rounded">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-wevioo-blue"></span>
+                          <span>{selectedSelf.name} <span className="text-[10px] text-slate-400 font-normal">(Moi-même)</span></span>
+                        </div>
+                        <span className="bg-slate-100 text-slate-700 font-mono text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0">
+                          {selectedSelf.ticketCount || 19} TR
+                        </span>
                       </div>
                     )}
                     {(pickupMode === 'FRIEND' || pickupMode === 'BOTH') && selectedFriend && (
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-100 px-2 py-1 rounded">
-                        <span className="w-2 h-2 rounded-full bg-[#FF6B35]"></span>
-                        <span>{selectedFriend.name} <span className="text-[10px] text-amber-500 font-semibold">(Collègue)</span></span>
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-700 bg-white border border-slate-100 px-2.5 py-1.5 rounded">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-wevioo-cyan"></span>
+                          <span>{selectedFriend.name} <span className="text-[10px] text-wevioo-cyan font-bold">(Collègue)</span></span>
+                        </div>
+                        <span className="bg-slate-100 text-slate-700 font-mono text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0">
+                          {selectedFriend.ticketCount || 19} TR
+                        </span>
                       </div>
                     )}
                   </div>
@@ -491,7 +517,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <button
               disabled={!signature}
               onClick={handleConfirmSubmit}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#1A3B8B] to-[#FF6B35] hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black shadow-md hover:shadow-lg transition-all text-sm flex items-center gap-1.5"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-wevioo-blue to-wevioo-cyan hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black shadow-md hover:shadow-lg transition-all text-sm flex items-center gap-1.5"
             >
               Confirmer & Envoyer les Mails
               <ArrowRight className="w-4 h-4" />
@@ -517,7 +543,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
           {/* Electronic Receipt */}
           <div className="w-full max-w-sm bg-slate-50 border border-slate-200 rounded-xl p-5 text-left font-mono text-xs space-y-3 relative overflow-hidden">
             {/* Stamp BG */}
-            <div className="absolute -right-8 -bottom-8 opacity-10 font-bold scale-150 text-[#1A3B8B] rotate-12 select-none pointer-events-none">WEVIOO</div>
+            <div className="absolute -right-8 -bottom-8 opacity-10 font-bold scale-150 text-wevioo-blue rotate-12 select-none pointer-events-none">WEVIOO</div>
 
             <div className="border-b border-dashed border-slate-200 pb-2.5 flex justify-between text-slate-400">
               <span>RECEPTION DES CARNETS</span>
@@ -533,7 +559,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                 <span className="text-slate-400">MEMBRE ID :</span>
                 <span className="font-bold text-slate-700">{selectedSelf?.id}</span>
               </div>
-              <div className="flex justify-between font-bold text-slate-750">
+              <div className="flex justify-between font-bold text-slate-755">
                 <span className="text-slate-400">HORODATAGE :</span>
                 <span>{new Date().toLocaleString('fr-FR')}</span>
               </div>
@@ -541,10 +567,17 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
                 <span className="text-slate-400">CARNET RETIRE :</span>
                 <span className="font-bold text-emerald-600">{pickupMode === 'SELF' ? 'PROPRE CARNET' : pickupMode === 'FRIEND' ? 'CARNET AMI' : 'DEUX CARNETS'}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">TOTAL TICKETS :</span>
+                <span className="font-bold text-slate-800">
+                  {((pickupMode === 'SELF' || pickupMode === 'BOTH') ? (selectedSelf?.ticketCount || 19) : 0) + 
+                   ((pickupMode === 'FRIEND' || pickupMode === 'BOTH') ? (selectedFriend?.ticketCount || 19) : 0)} tickets repas
+                </span>
+              </div>
               {selectedFriend && (
                 <div className="flex justify-between border-t border-slate-100 pt-1.5">
                   <span className="text-slate-400">POUR COLLÈGUE :</span>
-                  <span className="font-bold text-[#FF6B35]">{selectedFriend.name}</span>
+                  <span className="font-bold text-wevioo-cyan">{selectedFriend.name} ({selectedFriend.ticketCount || 19} TR)</span>
                 </div>
               )}
             </div>
@@ -561,7 +594,7 @@ export default function KioskMode({ employees, onConfirmDelivery }: KioskModePro
             <button
               onClick={handleResetKiosk}
               type="button"
-              className="py-3 px-8 bg-[#1A3B8B] hover:bg-[#1A3B8B]/95 text-white font-bold rounded-xl transition-all shadow text-sm"
+              className="py-3 px-8 bg-wevioo-blue hover:bg-wevioo-blue/95 text-white font-bold rounded-xl transition-all shadow text-sm"
             >
               Nouveau Retrait (Kiosque)
             </button>

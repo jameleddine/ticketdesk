@@ -7,7 +7,7 @@ export interface Employee {
   id: string;
   name: string;
   email: string;
-  department: string;
+  // department: string;
   title: string;
   avatar: string;
   ticketStatus: 'PENDING' | 'COLLECTED';
@@ -15,6 +15,8 @@ export interface Employee {
   collectedBy?: string; // ID or Name of person who collected it
   signatureUrl?: string; // Base64 signature
   phone?: string;
+  ticketCount?: number; // Representing Excel "Nombre de TR"
+  sodexoCardNumber?: string; // Representing Excel "Numéro de Carnet SODEXO"
 }
 
 export interface TicketTransaction {
@@ -38,6 +40,8 @@ export interface EmailNotification {
   body: string;
   htmlBody: string;
   timestamp: string;
-  status: 'SENT' | 'DELIVERED';
+  status: 'SENT' | 'DELIVERED' | 'SIMULATED' | 'FAILED';
   type: 'SELF_PICKUP' | 'FRIEND_PICKUP' | 'FRIEND_NOTIFICATION';
+  smtpError?: string;
+  smtpInfo?: string;
 }

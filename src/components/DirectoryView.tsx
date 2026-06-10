@@ -47,8 +47,8 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
       {/* Top section with title and global reset */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <h2 className="text-xl font-bold text-[#1A3B8B] tracking-tight flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[#FF6B35]" />
+          <h2 className="text-xl font-bold text-wevioo-blue tracking-tight flex items-center gap-2">
+            <Layers className="w-5 h-5 text-wevioo-cyan" />
             Annuaire Actif & Statut des Tickets (Active Directory)
           </h2>
           <p className="text-sm text-slate-500 mt-1">
@@ -58,7 +58,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
         <div className="flex gap-2 shrink-0">
           <button
             onClick={onResetAll}
-            className="text-xs font-semibold flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-[#1A3B8B]/10"
+            className="text-xs font-semibold flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-wevioo-blue/10"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Réinitialiser Tous les Tickets
@@ -70,7 +70,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1 */}
         <div className="bg-slate-50 rounded-xl p-4.5 border border-slate-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-[#1A3B8B]">
+          <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-wevioo-blue">
             <User className="w-5 h-5" />
           </div>
           <div>
@@ -103,7 +103,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
 
         {/* KPI 4 */}
         <div className="bg-slate-50 rounded-xl p-4.5 border border-slate-100 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-[#FF6B35]/10 flex items-center justify-center text-[#FF6B35]">
+          <div className="w-10 h-10 rounded-lg bg-wevioo-cyan/10 flex items-center justify-center text-wevioo-cyan">
             <Award className="w-5 h-5" />
           </div>
           <div className="flex-1">
@@ -112,7 +112,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
               <span className="text-2xl font-black text-slate-800">{collectionRate}%</span>
               <div className="flex-1 h-2 bg-slate-200 rounded-full max-w-[80px]">
                 <div 
-                  className="h-full bg-gradient-to-r from-[#1A3B8B] to-[#FF6B35] rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-wevioo-blue to-wevioo-cyan rounded-full transition-all duration-500"
                   style={{ width: `${collectionRate}%` }}
                 />
               </div>
@@ -131,7 +131,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
             placeholder="Rechercher par nom, email ou matricule..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1A3B8B] focus:ring-2 focus:ring-[#1A3B8B]/10 text-sm transition-all"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-wevioo-blue focus:ring-2 focus:ring-wevioo-blue/10 text-sm transition-all"
           />
         </div>
 
@@ -141,7 +141,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1A3B8B] focus:ring-2 focus:ring-[#1A3B8B]/10 text-sm appearance-none bg-white transition-all cursor-pointer"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-wevioo-blue focus:ring-2 focus:ring-wevioo-blue/10 text-sm appearance-none bg-white transition-all cursor-pointer"
           >
             {departments.map(dept => (
               <option key={dept} value={dept}>
@@ -156,7 +156,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full pl-4 pr-8 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#1A3B8B] focus:ring-2 focus:ring-[#1A3B8B]/10 text-sm appearance-none bg-white transition-all cursor-pointer"
+            className="w-full pl-4 pr-8 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-wevioo-blue focus:ring-2 focus:ring-wevioo-blue/10 text-sm appearance-none bg-white transition-all cursor-pointer"
           >
             <option value="ALL">Tous les Statuts</option>
             <option value="PENDING">En Attente ⏳</option>
@@ -193,7 +193,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
                   </td>
                   <td className="p-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1A3B8B] to-[#00A4E4] flex items-center justify-center font-bold text-white text-xs">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-wevioo-blue to-wevioo-cyan flex items-center justify-center font-bold text-white text-xs">
                         {emp.avatar}
                       </div>
                       <div>
@@ -223,7 +223,7 @@ export default function DirectoryView({ employees, onResetStatus, onResetAll }: 
                     {emp.ticketStatus === 'COLLECTED' ? (
                       <div className="space-y-1 text-slate-500">
                         <div className="font-medium flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-[#FF6B35]" />
+                          <Clock className="w-3.5 h-3.5 text-wevioo-cyan" />
                           {emp.collectedAt}
                         </div>
                         <div className="text-[11px] text-slate-400">
